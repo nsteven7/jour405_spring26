@@ -27,13 +27,27 @@ umd_fees <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/hea
 umd_fees_pct <- umd_fees |> mutate(pct_change = (`Fall 2024`- `Fall 2021`)/`Fall 2021` * 100)
 ```
 
+```{r}
+umd_fees_pct <- umd_fees |> mutate(pct_change = (`Fall 2025`- `Fall 2024`)/`Fall 2024` * 100)
+```
 
+```{r}
+comp <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/class_composition.csv")
 
+comp |>
+  summarize(
+    mean_first = mean(first_year),
+    mean_soph = mean(sophomore),
+    mean_junior = mean(junior),
+    mean_senior = mean(senior),
+    mean_grad = mean(grad)
+  )
+```
 ### Task 4: Describe our results
 
 Write a few sentences about what you found in the data. What's the story here?
 
-
+  From 2021 to 2024, the highest percent increase in fees was for recreation services, which increased by 150%, but only from $12 to $30. The highest percent increase from 2024 to 2025 was for student activities at 14% from $89 to $102. The greatest increase in dollar amount was the shuttle bus at $30 more.
 
 
 
