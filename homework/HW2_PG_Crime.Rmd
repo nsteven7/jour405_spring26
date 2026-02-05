@@ -9,7 +9,7 @@ In this assignment, we will be working with a dataset reporting the number of cr
 You will need to load the tidyverse library
 
 ```{r}
-
+library(tidyverse)
 ```
 
 Then you'll load the data from the web. The URL for the data is: https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/pg_crime_totals_2024.csv. You will create a dataframe called `pg_crime` that contains the data from this URL.
@@ -17,6 +17,7 @@ Then you'll load the data from the web. The URL for the data is: https://raw.git
 ### Task 2: Load the Data and Describe It
 
 ```{r}
+pg_crime <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/pg_crime_totals_2024.csv")
 ```
 ### Task 3: Describe the Data
 
@@ -29,14 +30,22 @@ ANSWER HERE
 Calculate the total number of incidents per month for each category using `mutate()`, calling the new column `total_incidents`. Then calculate the average number of incidents per month for each category of crime, calling the new column `average_incidents`. Assign the result to a new dataframe called `pg_crime_averages`.
 
 ```{r}
-
+pg_crime_averages <- pg_crime |> mutate(total_incidents = `Jan`+`Feb`+`Mar`+`Apr`+`May`+`Jun`+`Jul`+`Aug`+`Sep`+`Oct`+`Nov`+`Dec`)
+#function for a range of variables wasn't working, had to type manually
+#or I didn't put something in correctly
+```
+```{r}
+pg_crime_averages <- pg_crime_averages |> mutate(average_incidents= `total_incidents`/12)
 ```
 
 ### Task 5: Describe the Averages
 
 Examine the new dataframe, `pg_crime_averages`, by clicking on it in the Environment tab in RStudio. Write a couple of sentences describing the average number of incidents per month for each category. Which categories have the highest average number of incidents per month? Which have the lowest? What does this tell you about the pattern of crime in Prince George's County? Are there categories that you have questions about? Why or why not?
 
-ANSWER HERE
+  The categories organized from the lowest average to highest average incidents per month are the following:
+    Homicide- 5.8/mo, B & E (Other)- 7.08/mo, Sex Offense- 12.25/mo, Assault (Weapon)- 14.5/mo, Assault (Shooting)- 15.6/mo, Robbery (Commerical)- 20.2/mo, Robbery (Vehicle)- 24.9/mo, B & E (Residential)- 37/mo, Auto Stolen & Recovered- 40.6/mo, B & E (Commercial)- 44.6/mo, Robbery (Other)- 54.9/mo, Assault- 70.9/mo, Theft- 284.08/mo, Accident w/Impound- 320.75/mo, Theft (Auto)- 391.9/mo, Auto Stolen- 399.2/mo, Accident- 481.3/mo.
+      The Robbery (Residential) category is missing information from some sections, but would be the lowest at 2.3/mo.
+  Homicides, sex offenses, and assaults with weapons (including firearms) are the lowest, while theft (all types), stolen vehicles, and accidents are the highest. I think it is interesting that most stolen vehicles are never recovered.
 
 
 ### Task 6: Testing a Theory
@@ -44,19 +53,46 @@ ANSWER HERE
 One theory about crime is that it is more likely to occur in the summer months. Test this theory by creating three new columns using `mutate()` that calculate the percentage change compared to the average for each category of crime for the months of June, July, and August. Call the new columns `june_change`, `july_change`, and `august_change`. Assign the result to a new dataframe called `summer_crime_averages`.
 
 ```{r}
+summer_crime_averages <- pg_crime_averages |> mutate(june_change= (`Jun`-`average_incidents` ) / `average_incidents`*100) |> mutate(july_change= (`Jul`-`average_incidents`)/`average_incidents`*100) |> mutate(august_change= (`Aug`-`average_incidents`)/`average_incidents`*100)
+
 ```
 
 ### Task 7: Describe the Summer Crime Averages
 
 Look at the `summer_crime_averages` dataframe by clicking on it in the Environment tab in RStudio. Write a couple of sentences describing the percentage change in the average number of incidents per month for each category of crime for the months of June, July, and August. Do you see any patterns? What does this tell you about the theory that crime is more likely to occur in the summer months?
 
-ANSWER HERE
+  Homicide- 37.1%(Jun) 20%(Jul) 20%(Aug)
+  B & E (Other)- -43.5%(Jun) -29.4%(Jul) -15.3%(Aug)
+  Sex Offense- 14.3%(Jun) 22.4%(Jul) -18.4%(Aug)
+  Assault (Weapon)- -3.4%(Jun) 10.3%(Jul) -3.4%(Aug)
+  Assault (Shooting)- -4.25%(Jun) 34.04%(Jul) 34.04%(Aug)
+  Robbery (Commerical)- -15.7%(Jun) -0.8%(Jul) 43.8%(Aug)
+  Robbery (Vehicle)- 24.4%(Jun) 64.5%(Jul) -15.7%(Aug)
+  B & E (Residential)- 13.5%(Jun) -18.9%(Jul) -27%(Aug)
+  Auto Stolen & Recovered- 18.3%(Jun) 42.9%(Jul) -8.8%(Aug)
+  B & E (Commercial)- 7.5%(Jun) -8.2%(Jul) 25.4%(Aug)
+  Robbery (Other)- 14.7%(Jun) -34.4%(Jul) -16.2%(Aug)
+  Assault- 5.75%(Jun) -12.6%(Jul) -1.3%(Aug)
+  Theft- -1.4%(Jun) -1.7%(Jul) -8.5%(Aug)
+  Accident w/Impound- 4.1%(Jun) -1.8%(Jul) -2.4%(Aug)
+  Theft (Auto)- 0.8%(Jun) 14.6%(Jul) 4.1%(Aug)
+  Auto Stolen- 10.7%(Jun) 5.5%(Jul) 5.2%(Aug)
+  Accident- -3.8%(Jun) -4%(Jul) 3.25%(Aug)
+  
+  The categories with the highest change in June are Homicides (37.1% increase) and B & E Other (43.5% decrease) , while the lowest are Theft from Auto (0.8% increase) and Theft (1.4% decrease).
+  The categories with the highest change in July are Vehicle Robberies (64.5% increase) and Auto Stolen & Recovered (42.9% increase), while the lowest are Commercial Robberies (0.8% decrease) and Theft (1.8% decrease).
+  The categories with the highest change in August are Commercial Robberies (43.8% increase) and Shooting Assaults (34.04% increase), while the lowest are Assault (2.4% decrease) and Accident w/Impound (1.3% decrease).
+  More categories have a greater increase in June with 12 categories above average, while having a greater decrease in August with 10 categories below average. July has 9 categories below average.
+  The only categories that increase for all three months are Auto Stolen and Theft from Auto (which have high total incident numbers), and Homicide (which has a low total incident number).
+  While some crimes are more likely to occur during the summer, crime as a whole does not significantly change.
 
 ### Task 8: What's the Story?
 
 Write up a lede and nutgraf of a story focused on the crime data in Prince George's County. It could be from any of the dataframes you've created in this assignment. The lede should be a single sentence that summarizes the most important information in the data. The nutgraf should be a paragraph that provides more context and explains why the data is important.
 
-ANSWER HERE
+The theory that crime incidents occur more often in summer months generalizes data too much, according to 2024 crime data from Prince George's County.
+
+Out of 18 categories of crimes, half or more saw a decrease in incidents from the average during July and August. The only summer month with an increase in incidents was June, where 12 categories of crimes were higher than average. Vehicle theft and theft from vehicles went up in all three months, but vehicle theft peaked in October and theft from vehicles peaked in November. Homicides also increased during all three months, but July and August have the same number of incidents as March and November. No other categories increase across all three months.
 
 ### Task 9: Save Your Work and Put it on GitHub
 
