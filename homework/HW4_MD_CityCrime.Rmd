@@ -9,6 +9,8 @@ In this assignment, we will be working with a dataset of total crimes reported b
 You will need to load the tidyverse library and the janitor library
 
 ```{r}
+library(tidyverse)
+library(janitor)
 ```
 
 Then you'll load the data from the web. The URL for the data is: https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_cities_crime_2019_2020.csv. You will create a dataframe called `md_cities` that contains the data from this URL.
@@ -16,19 +18,26 @@ Then you'll load the data from the web. The URL for the data is: https://raw.git
 ### Task 2: Load the Data
 
 ```{r}
+md_cities <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_cities_crime_2019_2020.csv")
 ```
 ### Task 3: Calculating Rates
 
 Calculate violent and property crime rates for each city for both years using `mutate()`. You'll create four new columns: `violent_rate_2019`, `property_rate_2019`, `violent_rate_2020`, and `property_rate_2020`. You'll need to figure out the proper unit rate, given that there are varying populations. There's no perfect choice; choose the one that works best for you. Save the results to a new dataframe called `md_cities_rates`.
 
 ```{r}
+md_cities_rates <- md_cities |> mutate(violent_rate_2019= violent2019/pop2019 * 10000) |> mutate(property_rate_2019= property2019/pop2019 * 10000) |> mutate(violent_rate_2020= violent2020/pop2020 * 10000) |> mutate(property_rate_2020= property2020/pop2020 *10000)
 ```
 
 ### Task 4: Describe the Rates
 
 Examine the new dataframe, `md_cities_rates`, by clicking on it in the Environment tab in RStudio and sorting by the rate columns. Write a couple of sentences about the results, comparing and contrasting the cities with the highest rates (both violent and property) in 2019 and 2020. Do you see any patterns? What does this tell you about crime in Maryland cities? What's the story here?
 
-ANSWER HERE
+  Places with violent and property crime rates of 0 in 2020 had populations under 5000. 43 places had violent crime rates of 0 and 20 had property crime rates of 0 in 2020.
+  The place with the highest violent crime rate in 2020 was Ocean City at 239 per 10000 people, which is an outlier case seeing as Baltimore, the next-highest, was at 159 per 10000 people. Ocean City also has the highest property crimes at 1212 per 10000 people, another outlier as it is followed by Colmar Manor with a rate of 575 per 10000 people.
+  Ocean City is a major tourist destination and its numbers are likely affected by that, given its fairly low population. It has the highest property crime rate in 2019. Baltimore has the highest rate for violent crime in 2019, which is expected because it has the highest population on the list by at least 500000.
+  The decrease in crime rates in major cities during 2020 was probably due to covid, and Ocean City likely saw increases because it still had tourists coming in.
+  In general a place with more people will have more crime, while a place with less people will have less. 
+  
 
 
 ### Task 5: Calculate Percentage Change
@@ -36,19 +45,24 @@ ANSWER HERE
 Let's add two percentage change columns to your dataframe: one for violent crime rates and one for property crime rates. You'll calculate the percentage change between 2019 and 2020 for each city. Save the results to a new dataframe called `md_cities_change`.
 
 ```{r}
+md_cities_change <- md_cities_rates |> mutate(violent_change= (violent_rate_2020 - violent_rate_2019) /violent_rate_2019 * 100) |> mutate(property_change= (property_rate_2020 - property_rate_2019) /property_rate_2019 * 100)
 ```
 
 ### Task 7: Describe Percentage Changes
 
 Look at the `md_cities_change` dataframe by clicking on it in the Environment tab in RStudio. Write a couple of sentences describing the percentage change results. What's more interesting here, the patterns or the outliers? What's the story in the data?
 
-ANSWER HERE
+  In places with populations under 1000, most violent crime rates went up or down by over 25% with a single exception, not including places with unchanged rates. Baltimore and Fredrick, which have the highest listed populations, saw violent and property crimes decrease. Other high-population places like Rockville, Gaithersburg and Bowie saw increases in violent crime, though the latter two saw decreases in property crime.
+  Most places with populations over 10000 have decreased property crime, but violent crime changes vary.
+  Over half of all places had a decrease in property crime. More than half had an increase in violent crime, with the most extreme jumps being in Poolesville (607%) and Edmonston (895%) (from 1 in 2019 to 7 and 10 in 2020 respectively).
 
 ### Task 8: Tell the Best Story
 
 Write up a lede and nutgraf of a story with the _best_ story idea you've found in this assignment. The lede should be a single sentence that summarizes the most important information in the data. The nutgraf should be a paragraph that provides more context and explains why the data is important.
 
-ANSWER HERE
+Property crime rates decreased in Maryland cities between 2019 and 2020 while violent crime rates saw varied change.
+
+Many businesses closed or shuttered during 2020 because of covid-19 and people were more likely to work from home than in 2019. Property crimes are often considered crimes of opportunity, and with less people leaving their homes or going to public places, there were fewer windows for opportunity in general. Violent crime rates varied between increases and decreases, even in major cities. The most extreme changes in violent crime rates occurred in cities with small populations between small amounts of incidents. The property crime rate drop in 2020 should be considered an outlier among other years because of covid-19, and future years may see an increase in them when compared to it.
 
 ### Task 9: Save Your Work and Put it on GitHub
 
