@@ -67,3 +67,14 @@ Many businesses closed or shuttered during 2020 because of covid-19 and people w
 ### Task 9: Save Your Work and Put it on GitHub
 
 Save this notebook, then commit it to your local repository. Push the changes to your GitHub repository and submit the URL for this file in ELMS.
+
+### Task 10: Calculate percentiles for 2020
+
+```{r}
+md_cities_percentiles <- md_cities_rates |> mutate(percentile_violent = ntile(md_cities_rates$violent_rate_2020, 100))
+```
+10 cities are above the 90th percentile.
+
+```{r}
+md_cities_percentiles |> summarize(IQR = IQR(violent_rate_2020))
+```
