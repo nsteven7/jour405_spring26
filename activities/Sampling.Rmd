@@ -5,24 +5,50 @@ title: "Sampling"
 Follow along with the demo to learn how to sample data from a population using R and the Tidyverse. You should get started by loading the tidyverse in a new R block.
 
 ### Task 1: Load the tidyverse
+```{r}
+library(tidyverse)
+```
 
 
 ### Task 2: Load 1,000 rows of data with the ages of people from 18-80
+```{r}
+set.seed(42)
 
+population <- tibble(
+  age = sample(18:80, 1000, replace = TRUE)
+)
+
+population
+```
 
 ### Task 3: Sample 100 rows of data from the dataset
+```{r}
+sampled_data <- population |>
+  slice_sample(n=20)
 
+```
 
 ### Task 4: Calculate the mean age and standard deviation of the sample
-
+```{r}
+sampled_stats <- sampled_data |> 
+  summarize(mean_age = mean(age), sd_age = sd(age))
+```
 
 ### Task 5: Calculate the mean age and standard deviation of the population
-
+```{r}
+population_stats <- population |>
+  summarize(mean_age= mean(age) , sd_age= sd(age))
+```
 
 ### Task 6: Compare the sample and population statistics
+```{r}
+comparison <- bind_rows
+#the sample has a mean of 48 years and a sd of 18 years
+#the population has a mean of 49 years and sd of 17 years
+```
 
 Compare the means and standard deviations. Are they similar? Go back and re-run the sampling and statistics calculations with a smaller sample size. How do the results change?
 
-
+A sample size of 20 had a mean of 49 years and a standard deviation of 19 years. The mean is closer and the standard deviation is one unit above the population's instead of one below like the original sample. Running a new sample of 20 changed the mean to 44 years and standard deviation to 19, almost 20 years.
 
 When finished, save your work, switch to GitHub Desktop, then add, commit and push your changes to GitHub and submit the URL of the notebook in ELMS.
