@@ -23,14 +23,16 @@ PG_Murders_Heat |> summarize(correlation =cor(murders, temperature, method="pear
 ```{r}
 PG_Murders_Heat |>
   ggplot() +
-  geom_point(aes(x=temperature, y=murders, label=month))
+  geom_point(aes(x=temperature, y=murders, label=month)) +
+  geom_smooth(aes(x=temperature, y=murders), method ="lm")
 ```
 ### Task 5: Add labels to the scatterplot using geom_text(). Inside geom_text() put the same aes() as geom_point in Task 4, then after the aes() add size = 5.
 ```{r}
 PG_Murders_Heat |>
   ggplot() +
-  geom_point(aes(x=temperature, y=murders, label=month)) +
-  geom_text(aes(x=temperature, y=murders, label=month))
+  geom_point(aes(x=temperature, y=murders), color = "#E97AA5") +
+  geom_smooth(aes(x=temperature, y=murders), method ="lm", color = "#CE1C61") +
+  geom_text(aes(x=temperature, y=murders, label=month), size=5)
 ```
 
 ### Task 6: Describe the results of both the correlation calculation and the scatterplot.
