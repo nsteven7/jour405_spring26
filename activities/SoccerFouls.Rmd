@@ -49,5 +49,6 @@ matches |>
 
 ### Task 6: Describe the results of both the correlation calculation and the scatterplot.
 
+Fouls appear to have no relationship with goal outcomes. Most of the results cluster between -5 and 5, including games with the highest numbers of fouls. The value of the correlation calculation supports the result being insignificant because it is very far from an absolute value of 1.
 
 When you are done, save your work, switch to GitHub Desktop, then add, commit and push your changes to GitHub and submit the URL of the notebook in ELMS.
