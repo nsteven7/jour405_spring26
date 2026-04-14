@@ -51,4 +51,16 @@ matches |>
 
 Fouls appear to have no relationship with goal outcomes. Most of the results cluster between -5 and 5, including games with the highest numbers of fouls. The value of the correlation calculation supports the result being insignificant because it is very far from an absolute value of 1.
 
+### Task 7: Choose another variable and repeat the steps in Tasks 4-5.
+```{r}
+matches |> summarize(newcorrelation= cor(sh_att, goal_diff, method="pearson"))
+```
+```{r}
+matches |> 
+  ggplot() +
+  geom_point(aes(x=goal_diff, y=sh_att)) +
+  geom_smooth(aes(x=goal_diff, y=sh_att), method="lm")
+```
+  Greater amounts of shot attempts appear to have a positive correlation with goal differentials based on both the chart and correlation calculation, but is not a dominant factor.
+
 When you are done, save your work, switch to GitHub Desktop, then add, commit and push your changes to GitHub and submit the URL of the notebook in ELMS.
