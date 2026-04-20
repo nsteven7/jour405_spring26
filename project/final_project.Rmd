@@ -16,6 +16,10 @@ library(lubridate)
 ```{r}
 incidentdata <- read_csv("https://raw.githubusercontent.com/dwillis/umpd-logs/refs/heads/master/data/all-police-activity.csv")
 ```
+### Tests to Run
+I want to run correlation tests for accidents and game days. I also want to compare the results for each sport to see if there is any notable difference in the rate of accidents that occur for each, even if the overall correlation between accidents and game days is negligible.
+I need to separate game days from non-game days for the time range I'm using before I run that test. I could also look at z-scores to see if any days with an unusual amount of accidents correspond to game days.
+
 ### Describing the Data
 This CSV covers all logged UMPD incident reports from 1986 to 2026. I intend to only use car accident and pedestrian accident data from 2022 to 2026 for my project, which I will have to filter through. My original proposal was to look only at pedestrian accident data on game days, listed as 'Pedestrian Struck' in the Crime Type category, but too little data exists and I will instead look at all car accident data. I will not include departmental accidents, as those are accidents caused by/involving UMPD vehicles (not that a project about these accidents wouldn't be interesting, I don't think they're relevant to the topic).
 The most important columns for my analysis will be 'Crime Type' and 'Date Occurred,' the former for filtering accidents and the latter for comparing to UMD's game day schedules. Location will also be important to ensure I'm following my own definition of "on-campus," which I currently have as anywhere on or within one mile of UMD or UMD Athletics property.
