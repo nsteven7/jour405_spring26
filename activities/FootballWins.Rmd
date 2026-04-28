@@ -26,7 +26,7 @@ teams <- read_csv("https://raw.githubusercontent.com/dwillis/jour405_files/main/
 Next, we construct a linear model to analyze how different factors like `Yards Gained`, `Takeaways`, and `Points Scored` influence the number of wins. This model helps us quantify the relationships and assess which factors are significant predictors of success.
 
 ```{r}
-model <- lm(Wins ~ `Yards Gained` + Takeaways + `Points Scored`, data = teams)
+model <- lm(Wins ~ Giveaways+ Takeaways + `Points Scored`, data = teams)
 summary(model)
 ```
 
@@ -54,14 +54,14 @@ The coefficients tell us the estimated effect of each independent variable on th
 
 Is this a useful model, based on what you've seen? Why?
 
-ANSWER HERE
+This model is somewhat useful because it can predict wins, but a quarter of those predictions will likely be incorrect. The model is significant but may not be the most practical means of predicting game outcomes.
 
 ## Correlation Analysis
 
 After building the model, we calculate the correlation matrix for our variables of interest. This matrix helps visualize the strength and direction of the relationships between each pair of variables.
 
 ```{r}
-selected_vars <- teams |>  select(`Yards Gained`, Takeaways, `Points Scored`, Wins)
+selected_vars <- teams |>  select(Giveaways, Takeaways, `Points Scored`, Wins)
 cor(selected_vars)
 ```
 
@@ -80,8 +80,10 @@ The results from our correlation analysis show the strength of the relationships
 
 Which of these three factors - Yards Gained, Takeaways and Points Scored - have the most impact on wins? Are there any that do not seem impactful at all?
 
-ANSWER HERE
+Points Scored has the most impact on wins while Yards Gained has the least. When Yards Gained is removed from the equation, there is little change except for Takeaways becoming statistically significant. Replacing Yards Gained with Giveaways shows that they have a significant negative relationship with wins and weak negative relationships with Takeaways and Points Scored. Changing the factors around shows that generally, Yards Gained has little impact on wins regardless of other factors.
 
 ## Using the Model (3 points)
 
 Without using the words "multiple regression model", describe how you could use this model to cover a team or game.
+
+This model could be used to predict the outcome of a game that could be compared to the actual results. It would be at its most interesting if the game was either extremely close to or very far from the prediction.
