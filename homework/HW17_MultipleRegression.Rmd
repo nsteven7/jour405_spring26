@@ -1,6 +1,6 @@
 ---
 title: "Multiple Regression Analysis: Maryland Voter Turnout"
-name: "YOUR NAME HERE"
+name: "Natalie Stevens"
 ---
 
 # Introduction
@@ -26,7 +26,8 @@ head(md_turnout)
 
 Before building our model, let's explore the data to understand the variables and their relationships. Examine the correlation matrix to see how the independent variables relate to each other and to the dependent variable (voter turnout). Which variables seem to be correlated? Are there any that are not correlated at all? Also look at the multiple scatterplots. Which variables seem to have a linear relationship with the dependent variable? Which do not?
 
-ANSWER HERE
+Unemployment and racial composition have the strongest correlations to voter turnout. Income and bachelor's degrees are only significantly correlated with one another but not anything else (income has a slightly stronger correlation with turnout), and age has no strong correlation with anything.
+On the scatterplots, the strongest linear relationships are unemployment, racial composition, and population, but they also contain clusters of data instead of a continuous line.
 
 
 ```{r}
@@ -89,7 +90,7 @@ The coefficients tell us the estimated effect of each independent variable on th
 
 Examine the output of the model, checking the coefficients, residuals, and overall model fit. How well does this multiple variable model predict turnout? Do any of the variables seem to be insignificant? Is this a useful model, based on what you've seen? Why?
 
-ANSWER HERE
+Population, bachelor's degrees, and unemployment are the most insignificant variables. The adjusted r-squared and p-value show that the model is usable and has a statistically significant output.
 
 ```{r}
 # Build initial model with all predictors
@@ -103,19 +104,22 @@ summary(initial_model)
 
 Create three alternative models by adding or removing variables to see if we can improve the model's performance. Turnout will always be the dependent variable, but you should alter the independent variables by removing or adding some. Then compare the models using adjusted R-squared values. Are any of the models significantly better than the others?
 
-ANSWER HERE
+Model 2 uses income, median age and racial composition as its independent variables and is marginally better than the full model. Model 3 is the least significant and uses population, bachelor's degrees and unemployment. Model 4 is slightly worse than Model 2 and the full model.
 
 ```{r}
 # Model 2
-model2 <- lm(turnout ~ REPLACE ME, data = md_turnout)
+model2 <- lm(turnout ~ income + median_age + pct_white, data = md_turnout)
+
 summary(model2)
 
 # Model 3
-model3 <- lm(turnout ~ REPLACE ME, data = md_turnout)
+model3 <- lm(turnout ~ population + pct_bachelors_higher + 
+                   pct_unemployed, data = md_turnout)
 summary(model3)
 
 # Model 4
-model4 <- lm(turnout ~ REPLACE ME, data = md_turnout)
+model4 <- lm(turnout ~ income + pct_bachelors_higher + 
+                   pct_unemployed + pct_white, data = md_turnout)
 summary(model4)
 
 # Compare models
@@ -144,4 +148,3 @@ ggplot(model_comparison, aes(x = reorder(Model, Adjusted_R_squared), y = Adjuste
 
 Without using the words "multiple regression model", describe how you could use this analysis to cover an election or voter participation story.
 
-ANSWER HERE
