@@ -14,7 +14,8 @@ library(lubridate)
 ```
 
 ```{r}
-incidentdata <- read_csv("https://raw.githubusercontent.com/dwillis/umpd-logs/refs/heads/master/data/all-police-activity.csv")
+umpd <- read_csv("https://raw.githubusercontent.com/dwillis/umpd-logs/refs/heads/master/data/all-police-activity.csv")
+game_days <- read_csv("UMDSportsSchedules_2022-2026.csv")
 ```
 ### Tests to Run
 I want to run correlation tests for accidents and game days. I also want to compare the results for each sport to see if there is any notable difference in the rate of accidents that occur for each, even if the overall correlation between accidents and game days is negligible.
@@ -25,3 +26,21 @@ This CSV covers all logged UMPD incident reports from 1986 to 2026. I intend to 
 The most important columns for my analysis will be 'Crime Type' and 'Date Occurred,' the former for filtering accidents and the latter for comparing to UMD's game day schedules. Location will also be important to ensure I'm following my own definition of "on-campus," which I currently have as anywhere on or within one mile of UMD or UMD Athletics property.
 I have to obtain data for game days on my own, which should be available online or archived by UMD Athletics. Part of the reason I chose my year range was because schedules will be harder to find the further back I go. I have chosen to use football, men's basketball, women's basketball, soccer and lacrosse as my sports as they are popular and their games draw in a lot of traffic from in and outside of campus.
 The only parts of this project I am having some trouble with is remembering how to filter the columns I need. I've tested it out a few times and haven't gotten anything to work as intended, but I'm probably missing something from an earlier lesson this semester. I also don't fully understand the lubridate library (I assume this will be needed because I'm working with dates), but I can probably find information online about it.
+
+### Organizing by Date
+```{r}
+accidents_daily <- umpd |>
+  mutate(date = ymd_hms(`Date Occurred`)) |>
+  filter(str_detect(`Crime Type`, "Accident|Pedestrian Struck"),
+         !str_detect(`Crime Type`, "Depart"),
+         date >= ymd("2022-01-01"),
+         date <= ymd("2026-04-22")) |>
+  count(date, name = "accident_count")
+
+daily <- tibble(date = seq(ymd("2022-01-01"), ymd("2026-04-22"), by = "day")) |>
+  left_join(accidents_daily, by = "date") |>
+  mutate(accident_count = replace_na(accident_count, 0)) |>
+  left_join(game_days, by = "date") |>
+  mutate(is_game_day = !is.na(SPORT),
+         weekday = wday(date, label = TRUE))
+```
