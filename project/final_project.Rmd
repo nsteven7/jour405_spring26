@@ -11,11 +11,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(lubridate)
+library(janitor)
+library(corrplot)
 ```
 
 ```{r}
 umpd <- read_csv("https://raw.githubusercontent.com/dwillis/umpd-logs/refs/heads/master/data/all-police-activity.csv")
-game_days <- read_csv("UMDSportsSchedules_2022-2026.csv")
+UMD_game_days <- read_csv("UMDSportsSchedules_2022-2026.csv")
+#created my own CSV for game days, had a ton of trouble getting Excel and Google Sheets to not auto-reformat my dates which is why I never turned in some of the test assignments.
 ```
 ### Tests to Run
 I want to run correlation tests for accidents and game days. I also want to compare the results for each sport to see if there is any notable difference in the rate of accidents that occur for each, even if the overall correlation between accidents and game days is negligible.
@@ -26,17 +29,18 @@ This CSV covers all logged UMPD incident reports from 1986 to 2026. I intend to 
 The most important columns for my analysis will be 'Crime Type' and 'Date Occurred,' the former for filtering accidents and the latter for comparing to UMD's game day schedules. Location will also be important to ensure I'm following my own definition of "on-campus," which I currently have as anywhere on or within one mile of UMD or UMD Athletics property.
 I have to obtain data for game days on my own, which should be available online or archived by UMD Athletics. Part of the reason I chose my year range was because schedules will be harder to find the further back I go. I have chosen to use football, men's basketball, women's basketball, soccer and lacrosse as my sports as they are popular and their games draw in a lot of traffic from in and outside of campus.
 The only parts of this project I am having some trouble with is remembering how to filter the columns I need. I've tested it out a few times and haven't gotten anything to work as intended, but I'm probably missing something from an earlier lesson this semester. I also don't fully understand the lubridate library (I assume this will be needed because I'm working with dates), but I can probably find information online about it.
-
-### Organizing by Date
+### Organizing Data
 ```{r}
 accidents_daily <- umpd |>
-  mutate(date = ymd_hms(`Date Occurred`)) |>
+  mutate(exactdate = ymd_hms(`Date Occurred`),
+         date = as.Date(exactdate))|>
   filter(str_detect(`Crime Type`, "Accident|Pedestrian Struck"),
          !str_detect(`Crime Type`, "Depart"),
          date >= ymd("2022-01-01"),
          date <= ymd("2026-04-22")) |>
   count(date, name = "accident_count")
-
+game_days <- UMD_game_days |>
+  mutate(date = ymd(`DATE`))
 daily <- tibble(date = seq(ymd("2022-01-01"), ymd("2026-04-22"), by = "day")) |>
   left_join(accidents_daily, by = "date") |>
   mutate(accident_count = replace_na(accident_count, 0)) |>
@@ -44,3 +48,108 @@ daily <- tibble(date = seq(ymd("2022-01-01"), ymd("2026-04-22"), by = "day")) |>
   mutate(is_game_day = !is.na(SPORT),
          weekday = wday(date, label = TRUE))
 ```
+
+### Totals
+```{r}
+total_accidents = 66
+#tried using the sum() function, it kept outputting 66L. See below:
+    test_total_accidents = sum(daily$accident_count)
+total_gamedays = 268
+#there are 269, but one men's basketball game failed to parse correctly and is being excluded.
+total_days = 1579
+#entire range of time
+total_accident_gamedays <- daily |> mutate( game_accident =
+  daily$accident_count > 0 & daily$is_game_day == TRUE
+)
+gameday_accidents = 19
+#one game day had two accidents. Sum function also output a number ending in L. See below:
+    test_gameday_accidents = sum(total_accident_gamedays$game_accident ==TRUE)
+accidents_nogame = 47
+#three non-game days had two accidents. Same sum function issue as previous.
+test_accidents_nogame = sum(daily$is_game_day ==FALSE & daily$accident_count)
+```
+  As of now, the games with the highest frequency of same-day accidents are men's basketball and women's basketball. There are very few accidents compared to game days and even fewer compared to the entire range of time.
+
+### Averages, SD, Z-Scores
+```{r}
+avg_gameday_accidents = gameday_accidents/total_gamedays
+avg_accidents = total_accidents/total_days
+#I didn't use the mean function because I'm concerned about the letters in the sum output.
+total_accident_gamedays <- total_accident_gamedays |> mutate(
+sd_accidents = sd(accident_count),
+zscore_accidents = (accident_count - avg_accidents) / sd_accidents
+)
+
+
+unusual_days <- total_accident_gamedays %>%
+  filter(abs(zscore_accidents) > 2) %>%
+  arrange(desc(abs(zscore_accidents)))
+
+unusual_days %>%
+  select(date, accident_count, is_game_day, zscore_accidents)
+```
+  So far the average number of accidents per game day is marginally higher than across the entire span of time, comparing 0.07 to 0.04 respectively. From the numbers alone there is a difference, but it already doesn't seem to mean much on a large scale.
+  The lowest number of accidents per day is zero, the highest is two. The z-scores for both 1 and 2 accidents are well above 2, making them highly unusual.
+  
+### Visual Data
+
+```{r}
+total_accident_gamedays |>
+ggplot() +
+  geom_histogram(aes(x =accident_count), binwidth = .5)+
+   geom_vline(aes(xintercept = avg_accidents), color = "red", linetype = "dashed", linewidth = 1) +
+  geom_vline(aes(xintercept = avg_accidents - sd_accidents), color = "blue", linetype = "dashed", linewidth = 1) +
+  geom_vline(aes(xintercept = avg_accidents + sd_accidents), color = "blue", linetype = "dashed", linewidth = 1) +
+  labs(title = "Campus Car Accidents (2022-26)")
+```
+  As expected based on the z-scores, a given day is expected to have no accidents.
+
+```{r}
+ggplot(total_accident_gamedays, aes(x = date, y = accident_count, color = abs(zscore_accidents) > 2)) +
+  geom_line(color = "gray") +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("black", "red"), 
+                     name = "Unusual Value",
+                     labels = c("Normal", "Unusual")) +
+  theme_minimal() +
+  labs(title = "Campus Car Accidents (2022-26)",
+       subtitle = "Unusual days highlighted",
+       x = "Date", y = "Accidents"
+       )
+```
+ Any day with an accident is highly unusual.
+ 
+### Significance Testing
+  While we know accidents are marginally more likely to happen on game days, how important is that? And is it significant?
+```{r}
+  significance_accidents <- t.test(game_accident ==TRUE ~ accident_count > 0 & is_game_day ==FALSE, data = total_accident_gamedays)
+```
+The p-value for this is well below .05, meaning there is a statistically significant difference between the average number of accidents and the average number of accidents on non-game days.
+
+### Linear Regression Test
+```{r}
+total_accident_gamedays |>
+  ggplot(aes(x= date, y=zscore_accidents, color = abs(zscore_accidents) > 2 )) +
+  geom_point() +
+  geom_smooth(method= "lm", se =FALSE, color = "red")
+```
+A linear regression test shows that the relationship between game days and more car accidents is extremely weak despite its statistical significance. The paler red line at the bottom of the graph represents days with z-scores below 2 (so, days without accidents). While this doesn't reveal a tangibly significant trend for games and accidents, accidents in general seem to be getting more frequent over time.
+
+### Multiple Regression Test
+```{r}
+total_accident_gamedays$is_game_day <- as.integer(as.logical(total_accident_gamedays$is_game_day))
+total_accident_gamedays$game_accident <-as.integer(as.logical(total_accident_gamedays$game_accident))
+total_accident_gamedays$weekday <- as.integer(total_accident_gamedays$weekday)
+selected_variables <- total_accident_gamedays |>
+  select(accident_count, is_game_day, weekday, game_accident)
+correlation_matrix <- cor(selected_variables)
+print(correlation_matrix)
+corrplot(correlation_matrix, method = "circle")
+```
+  Weekdays appear to have no significant effect on whether accidents happen or not. The relationship between accidents and game days is slightly stronger, but not enough to have a real impact. The only strong relationship here is between game accidents and game days, which is expected because one is dependent on the other. It also seems that if there is an accident, there is a decent chance it will be on a game day based on the strength of the game_accident and accident_count variables.
+
+### Story Pitch
+  While the data shows that there is a statistically significant but tangibly tiny relationship between game days and car accidents on campus, a story could still be made from it.
+  This would be a feature story instead of any sort of hard news, focusing on how the university handles traffic safety with the influx of people visiting campus for home games. I could use the weak relationship between accidents and game days to show that there is a small difference in how frequently accidents occur on these days despite possible previous notions of it being a greater difference. I would interview DOTS staff on campus responsible for planning game-day parking and transportation on campus as well as UMPD staff who may handle or have to prepare for accidents on those days. UMD Athletics staff may also be good choices for interviews and could have information about how many people come from off-campus to watch games.
+  If I had the time and data, I could also try to figure out if people use public transportation like the metro or buses to get to campus on game days as well, but that may mess with the data too much or be irrelevant.
+  It isn't the most interesting story idea in the world, but its the only one I can think of given the results from the data.

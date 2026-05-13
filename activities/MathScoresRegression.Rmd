@@ -17,14 +17,14 @@ This analysis can be useful for journalists to understand which schools are perf
 First, let's load the data into a data frame using the read_csv() function from the tidyverse library.
 
 ```{r}
-schools <- read_csv("https://raw.githubusercontent.com/dwillis/jour405_files/refs/heads/main/montgomery_pa.csv")
+schoolsPA <- read_csv("https://raw.githubusercontent.com/dwillis/jour405_files/refs/heads/main/montgomery_pa.csv")
 ```
 ### Task: Create a Scatterplot and Describe the Results (2 points)
 
 Next, let's create a scatterplot to visualize the relationship between the FARMS percentage and the percentage of students who met or exceeded math expectations. We'll use ggplot2 to create the plot and add a linear regression line.
 
 ```{r}
-schools |>
+schoolsPA |>
   ggplot(aes(x = `FARMS Pct`, y = `% Met or Exceeded Math Expectations`)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "red") +
@@ -41,7 +41,7 @@ ANSWER HERE
 Next, we'll perform a linear regression analysis using the lm() function. We'll set the percentage of students who met or exceeded math expectations as the dependent variable, and the FARMS percentage as the independent variable. In other words, if we know the FARMS percentage for a school, how reliably can we predict its math score?
 
 ```{r}
-model <- lm(`% Met or Exceeded Math Expectations` ~ `FARMS Pct`, data = schools)
+model <- lm(`% Met or Exceeded Math Expectations` ~ `FARMS Pct`, data = schoolsPA)
 
 summary(model)
 ```
@@ -63,14 +63,14 @@ Residuals can also tell you who is under-performing and over-performing the mode
 We'll then use the arrange() function to sort the data frame by the absolute value of the residuals.
 
 ```{r}
-schools$predicted <- predict(model)
+schoolsPA$predicted <- predict(model)
 
 # Calculate the residuals
-schools <- schools |> 
+schoolsPA <- schoolsPA |> 
   mutate(residual = `% Met or Exceeded Math Expectations` - predicted)
 
 # Sort the data frame by the absolute value of the residuals in descending order
-schools <- schools |>
+schoolsPA <- schoolsPA |>
   mutate(abs_residual = abs(residual)) |>
   arrange(desc(abs_residual))
 

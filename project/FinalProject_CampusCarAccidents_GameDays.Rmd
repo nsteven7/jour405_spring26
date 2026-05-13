@@ -1,0 +1,22 @@
+---
+title: "FinalProject"
+output: html_document
+date: "2026-03-31"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+incidentdata <- read_csv("https://raw.githubusercontent.com/dwillis/umpd-logs/refs/heads/master/data/all-police-activity.csv")
+```
+
+```{r}
+accidents <- filter
+```

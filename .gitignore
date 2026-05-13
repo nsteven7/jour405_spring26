@@ -50,3 +50,5 @@ rsconnect/
 
 /.DS_Store
 */.DS_Store
+test/test.Rproj
+homework/HW7b_Probabilities.Rmd
